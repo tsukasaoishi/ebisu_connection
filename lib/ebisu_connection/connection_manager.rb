@@ -2,9 +2,12 @@ require 'yaml'
 
 module EbisuConnection
   class ConnectionManager
-    attr_writer :slaves_file, :slave_type
 
     CHECK_INTERVAL = 1.minute
+
+    class << self
+      attr_accessor :slaves_file, :slave_type
+    end
 
     def initialize
       @mutex = Mutex.new
@@ -22,7 +25,7 @@ module EbisuConnection
       return if now - @check_time < CHECK_INTERVAL
       @check_time = now
 
-      mtime = File.mtime(self.slaves_file)
+      mtime = File.mtime(self.class.slaves_file)
       return if @file_mtime == mtime
 
       clear_all_connection!
@@ -62,8 +65,8 @@ module EbisuConnection
     end
 
     def get_slave_conf
-      conf = YAML.load_file(self.slaves_file)
-      self.slave_type ? conf[self.slave_type] : conf
+      conf = YAML.load_file(self.class.slaves_file)
+      self.class.slave_type ? conf[self.class.slave_type] : conf
     end
 
     def get_spec
