@@ -56,15 +56,15 @@ module EbisuConnection
       EbisuConnection::Slaves.new(slaves_conf, spec)
     end
 
-    def slave_conf
-      @slave_conf ||= get_slave_conf
+    def slaves_conf
+      @slaves_conf ||= get_slaves_conf
     end
 
     def spec
       @spec ||= get_spec
     end
 
-    def get_slave_conf
+    def get_slaves_conf
       conf = YAML.load_file(self.class.slaves_file)
       self.class.slave_type ? conf[self.class.slave_type] : conf
     end
