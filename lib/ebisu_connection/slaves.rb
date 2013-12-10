@@ -5,7 +5,7 @@ module EbisuConnection
       def initialize(conf, spec)
         @hostname, weight = conf.split(/\s*,\s*/)
         @weight = (weight || 1).to_i
-        @spec = spec.merge(:hostname => hostname)
+        @spec = spec.merge(:host => hostname)
       end
 
       def connection
