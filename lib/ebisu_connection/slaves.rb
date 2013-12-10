@@ -1,7 +1,7 @@
 module EbisuConnection
   class Slaves
     class Slave
-      attr_reader :hostname. :weight
+      attr_reader :hostname, :weight
       def initialize(conf, spec)
         @hostname, weight = conf.split(/\s*,\s*/)
         @weight = (weight || 1).to_i
