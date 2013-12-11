@@ -4,9 +4,15 @@ module EbisuConnection
   class ConnectionManager
 
     CHECK_INTERVAL = 1.minute
+    SLAVES_FILE = File.join(Rails.root, "config/slave.yaml")
 
     class << self
-      attr_accessor :slaves_file, :slave_type
+      attr_writer :slaves_file
+      attr_accessor :slave_type
+
+      def slaves_file
+        @slaves_file || SLAVES_FILE
+      end
     end
 
     def initialize
