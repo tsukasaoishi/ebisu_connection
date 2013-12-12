@@ -2,10 +2,23 @@ module EbisuConnection
   class Slaves
     class Slave
       attr_reader :hostname, :weight
+
       def initialize(conf, spec)
-        @hostname, weight = conf.split(/\s*,\s*/)
+        case conf
+        when String
+          @hostname, weight = conf.split(/\s*,\s*/)
+          edit_spec = {:host => @hostname}
+        when Hash
+          conf = symbolize_keys(conf)
+          weight = conf.delete(:weight)
+          edit_spec = conf
+          @hostname = conf[:host]
+        else
+          raise ArgumentError, "slaves config is invalid"
+        end
+
+        @spec = spec.merge(edit_spec)
         @weight = (weight || 1).to_i
-        @spec = spec.merge(:host => hostname)
       end
 
       def connection
@@ -18,6 +31,16 @@ module EbisuConnection
           @connection = nil
         end
       rescue
+      end
+
+      private
+
+      def symbolize_keys(hash)
+        symbolize_hash = {}
+        hash.each do |k,v|
+          symbolize_hash[k.to_sym] = v
+        end
+        symbolize_hash
       end
     end
 
