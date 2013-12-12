@@ -1,8 +1,12 @@
-# EbisuConnection
+# EbisuConnection                                                                                                                                                                                           
 
-TODO: Write a gem description
+EbisuConnection supports to connect with Mysql slave servers. It doesn't need Load Balancer.
+You can assign a performance weight to each slave server. And slave config is reflected dynamic. 
+EbisuConnection uses FreshConnection (https://github.com/tsukasaoishi/fresh_connection).
 
 ## Installation
+
+EbisuConnection has tested Rails3.2.16 and Rails4.0.2.
 
 Add this line to your application's Gemfile:
 
@@ -16,9 +20,67 @@ Or install it yourself as:
 
     $ gem install ebisu_connection
 
+## Config
+
+config/database.yml
+
+    production:
+      adapter: mysql2
+      encoding: utf8
+      reconnect: true
+      database: kaeru
+      pool: 5
+      username: master
+      password: master
+      host: localhost
+      socket: /var/run/mysqld/mysqld.sock
+
+      slave:
+        username: slave
+        password: slave
+        host: slave
+
+slave is base config to connect to slave servers.
+Others will use the master setting. If you want to change, write in the slave.
+
+Config of each slave server fill out config/slave.yaml
+
+    - "slave1, 10"
+    - "slave2, 20"
+    -
+      host: "slave3"
+      weight: 30
+
+config/slave.yaml is checked by end of action. If config changed, it's reflected dynamic. Application doesn't need restart.
+
+    "hostname, weight"
+
+String format is it. You can write config with hash.
+
+### Only master models
+
+config/initializers/fresh_connection.rb
+
+    FreshConnection::SlaveConnection.ignore_models = %w|Model1 Model2|
+
+If models that ignore access to slave servers is exist, You can write model name at FreshConnection::SlaveConnection.ignore models.
+
 ## Usage
 
-TODO: Write usage instructions here
+Read query will be access to slave server.
+
+    Article.where(:id => 1)
+
+If you want to access to master saver, use readonly(false).
+
+    Article.where(:id => 1).readonly(false)
+
+In transaction, Always will be access to master server.
+
+    Article.transaction do
+      Article.where(:id => 1)
+    end
+
 
 ## Contributing
 
