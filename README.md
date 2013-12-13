@@ -1,4 +1,4 @@
-# EbisuConnection                                                                                                                                                                                           
+# EbisuConnection
 
 EbisuConnection supports to connect with Mysql slave servers. It doesn't need Load Balancer.
 You can assign a performance weight to each slave server. And slave config is reflected dynamic. 
@@ -45,11 +45,12 @@ Others will use the master setting. If you want to change, write in the slave.
 
 Config of each slave server fill out config/slave.yaml
 
-    - "slave1, 10"
-    - "slave2, 20"
-    -
-      host: "slave3"
-      weight: 30
+    production:
+      - "slave1, 10"
+      - "slave2, 20"
+      -
+        host: "slave3"
+        weight: 30
 
 config/slave.yaml is checked by end of action. If config changed, it's reflected dynamic. Application doesn't need restart.
 
@@ -59,17 +60,18 @@ String format is it. You can write config with hash.
 
 ### Only master models
 
-config/initializers/fresh_connection.rb
+config/initializers/ebisu_connection.rb
 
-    FreshConnection::SlaveConnection.ignore_models = %w|Model1 Model2|
+    EbisuConnection::ConnectionManager.ignore_models = %w|Model1 Model2|
 
-If models that ignore access to slave servers is exist, You can write model name at FreshConnection::SlaveConnection.ignore models.
+If models that ignore access to slave servers is exist, You can write model name at EbisuConnection::ConnectionManager.ignore models.
 
 ## Usage
 
 Read query will be access to slave server.
 
     Article.where(:id => 1)
+    Article.count
 
 If you want to access to master saver, use readonly(false).
 

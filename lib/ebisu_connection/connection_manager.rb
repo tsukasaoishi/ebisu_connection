@@ -2,19 +2,19 @@ require 'yaml'
 
 module EbisuConnection
   class ConnectionManager
-    CHECK_INTERVAL = 1.minute
-
     class << self
-      attr_writer :slaves_file
-      attr_accessor :slave_type
+      delegate :slave_file, :slave_file=, :check_interval, :check_interval=,
+        :slave_type, :slave_type=, :to => EbisuConnection::ConfFile
 
-      def slaves_file
-        @slaves_file || File.join(Rails.root, "config/slave.yaml")
-      end
+      delegate :ignore_models=, :to => FreshConnection::SlaveConnection
     end
+
+    delegate :if_modify, :conf_clear!, :slaves_conf, :spec,
+      :to => EbisuConnection::ConfFile
 
     def initialize
       @mutex = Mutex.new
+      @slaves = {}
     end
 
     def slave_connection
@@ -23,89 +23,57 @@ module EbisuConnection
 
     def put_aside!
       return if check_own_connection
-      return unless @file_mtime
 
-      now = Time.now
-      @check_time ||= now
-      return if now - @check_time < CHECK_INTERVAL
-      @check_time = now
-
-      mtime = File.mtime(self.class.slaves_file)
-      return if @file_mtime == mtime
-
-      reserve_release_all_connection
-      check_own_connection
+      if_modify do
+        reserve_release_all_connection
+        check_own_connection
+      end
     end
 
     def clear_all_connection!
       @mutex.synchronize do
-        @slaves ||= {}
         @slaves.values.each do |s|
           s.all_disconnect!
         end
 
-        @slaves = nil
-        @slave_conf = nil
-        @spec = nil
+        @slaves = {}
+        conf_clear!
       end
     end
 
     private
 
     def check_own_connection
-      ret = false
       @mutex.synchronize do
-        @slaves ||= {}
-        if s = @slaves[current_thread_id]
-          if ret = s.reserved_release?
-            s.all_disconnect!
-            @slaves.delete(current_thread_id)
-          end
+        s = @slaves[current_thread_id]
+
+        if s && s.reserved_release?
+          s.all_disconnect!
+          @slaves.delete(current_thread_id)
+          true
+        else
+          false
         end
       end
-      ret
     end
 
     def reserve_release_all_connection
       @mutex.synchronize do
-        @slaves ||= {}
         @slaves.values.each do |s|
           s.reserve_release_connection!
         end
-        @slave_conf = nil
-        @spec = nil
+        conf_clear!
       end
     end
 
     def slaves
       @mutex.synchronize do
-        @slaves ||= {}
         @slaves[current_thread_id] ||= get_slaves
       end
     end
 
     def get_slaves
       EbisuConnection::Slaves.new(slaves_conf, spec)
-    end
-
-    def slaves_conf
-      @slaves_conf ||= get_slaves_conf
-    end
-
-    def spec
-      @spec ||= get_spec
-    end
-
-    def get_slaves_conf
-      @file_mtime = File.mtime(self.class.slaves_file)
-      conf = YAML.load_file(self.class.slaves_file)
-      conf = conf[Rails.env] if conf.is_a?(Hash)
-      self.class.slave_type ? conf[self.class.slave_type] : conf
-    end
-
-    def get_spec
-      ret = ActiveRecord::Base.configurations[Rails.env]
-      ret.merge(ret["slave"] || {})
     end
 
     def current_thread_id
