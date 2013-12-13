@@ -65,7 +65,16 @@ module EbisuConnection
     end
 
     def all_disconnect!
+      @reserve_release = nil
       @slaves.each {|s| s.disconnect!}
+    end
+
+    def reserve_release_connection!
+      @reserve_release = true
+    end
+
+    def reserved_release?
+      !!@reserve_release
     end
 
     private

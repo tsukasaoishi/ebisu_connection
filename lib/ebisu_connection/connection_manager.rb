@@ -22,6 +22,7 @@ module EbisuConnection
     end
 
     def put_aside!
+      return if check_own_connection
       return unless @file_mtime
 
       now = Time.now
@@ -32,11 +33,13 @@ module EbisuConnection
       mtime = File.mtime(self.class.slaves_file)
       return if @file_mtime == mtime
 
-      clear_all_connection!
+      reserve_release_all_connection
+      check_own_connection
     end
 
     def clear_all_connection!
       @mutex.synchronize do
+        @slaves ||= {}
         @slaves.values.each do |s|
           s.all_disconnect!
         end
@@ -48,6 +51,31 @@ module EbisuConnection
     end
 
     private
+
+    def check_own_connection
+      ret = false
+      @mutex.synchronize do
+        @slaves ||= {}
+        if s = @slaves[current_thread_id]
+          if ret = s.reserved_release?
+            s.all_disconnect!
+            @slaves.delete(current_thread_id)
+          end
+        end
+      end
+      ret
+    end
+
+    def reserve_release_all_connection
+      @mutex.synchronize do
+        @slaves ||= {}
+        @slaves.values.each do |s|
+          s.reserve_release_connection!
+        end
+        @slave_conf = nil
+        @spec = nil
+      end
+    end
 
     def slaves
       @mutex.synchronize do
