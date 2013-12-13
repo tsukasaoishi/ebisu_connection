@@ -99,6 +99,7 @@ module EbisuConnection
     def get_slaves_conf
       @file_mtime = File.mtime(self.class.slaves_file)
       conf = YAML.load_file(self.class.slaves_file)
+      conf = conf[Rails.env] if conf.is_a?(Hash)
       self.class.slave_type ? conf[self.class.slave_type] : conf
     end
 
