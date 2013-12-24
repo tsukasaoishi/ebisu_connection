@@ -1,5 +1,7 @@
 module EbisuConnection
   class Slaves
+    class AllSlavesHasGoneError < StandardError; end
+
     class Slave
       attr_reader :hostname, :weight
 
@@ -45,19 +47,11 @@ module EbisuConnection
     end
 
     def initialize(slaves_conf, spec)
-      weight_list = []
       @slaves = slaves_conf.map do |conf|
-        s = Slave.new(conf, spec)
-        weight_list << s.weight
-        s
+        Slave.new(conf, spec)
       end
 
-      @roulette = []
-      gcd = get_gcd(weight_list)
-      weight_list.each_with_index do |w, index|
-        weight = w / gcd
-        @roulette.concat([index] * weight)
-      end
+      recalc_roulette
     end
 
     def sample
@@ -68,6 +62,8 @@ module EbisuConnection
       return unless s = @slaves.detect{|s| s.connection == connection}
       s.disconnect! rescue nil
       @slaves.delete(s)
+      raise AllSlavesHasGoneError if @slaves.blank?
+      recalc_roulette
       nil
     end
 
@@ -85,6 +81,17 @@ module EbisuConnection
     end
 
     private
+
+    def recalc_roulette
+      weight_list = @slaves.map {|s| s.weight }
+
+      @roulette = []
+      gcd = get_gcd(weight_list)
+      weight_list.each_with_index do |w, index|
+        weight = w / gcd
+        @roulette.concat([index] * weight)
+      end
+    end
 
     def get_gcd(list)
       list = list.sort.uniq
