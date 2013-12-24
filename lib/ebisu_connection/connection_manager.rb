@@ -1,7 +1,8 @@
 require 'yaml'
+require 'fresh_connection/abstract_connection_manager'
 
 module EbisuConnection
-  class ConnectionManager
+  class ConnectionManager < FreshConnection::AbstractConnectionManager
     class << self
       delegate :slave_file, :slave_file=, :check_interval, :check_interval=,
         :slave_type, :slave_type=, :to => EbisuConnection::ConfFile
@@ -13,7 +14,7 @@ module EbisuConnection
       :to => EbisuConnection::ConfFile
 
     def initialize
-      @mutex = Mutex.new
+      super
       @slaves = {}
     end
 
@@ -30,8 +31,16 @@ module EbisuConnection
       end
     end
 
+    def recoverable?
+      true
+    end
+
+    def recovery(failure_connection, exception)
+      slaves.remove_connection(failure_connection)
+    end
+
     def clear_all_connection!
-      @mutex.synchronize do
+      synchronize do
         @slaves.values.each do |s|
           s.all_disconnect!
         end
@@ -44,7 +53,7 @@ module EbisuConnection
     private
 
     def check_own_connection
-      @mutex.synchronize do
+      synchronize do
         s = @slaves[current_thread_id]
 
         if s && s.reserved_release?
@@ -58,7 +67,7 @@ module EbisuConnection
     end
 
     def reserve_release_all_connection
-      @mutex.synchronize do
+      synchronize do
         @slaves.values.each do |s|
           s.reserve_release_connection!
         end
@@ -67,17 +76,13 @@ module EbisuConnection
     end
 
     def slaves
-      @mutex.synchronize do
+      synchronize do
         @slaves[current_thread_id] ||= get_slaves
       end
     end
 
     def get_slaves
       EbisuConnection::Slaves.new(slaves_conf, spec)
-    end
-
-    def current_thread_id
-      Thread.current.object_id
     end
   end
 end

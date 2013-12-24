@@ -64,6 +64,13 @@ module EbisuConnection
       @slaves[@roulette.sample]
     end
 
+    def remove_connection(connection)
+      return unless s = @slaves.detect{|s| s.connection == connection}
+      s.disconnect! rescue nil
+      @slaves.delete(s)
+      nil
+    end
+
     def all_disconnect!
       @reserve_release = nil
       @slaves.each {|s| s.disconnect!}
