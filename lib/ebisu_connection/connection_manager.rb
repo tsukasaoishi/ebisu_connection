@@ -31,12 +31,17 @@ module EbisuConnection
       end
     end
 
-    def recoverable?
-      true
+    def recovery(failure_connection, exception)
+      if recoverable? && slave_down_message?(exception.message)
+        slaves.remove_connection(failure_connection)
+        true
+      else
+        false
+      end
     end
 
-    def recovery(failure_connection, exception)
-      slaves.remove_connection(failure_connection)
+    def recoverable?
+      true
     end
 
     def clear_all_connection!
