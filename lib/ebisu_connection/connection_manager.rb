@@ -4,7 +4,7 @@ require 'fresh_connection/abstract_connection_manager'
 module EbisuConnection
   class ConnectionManager < FreshConnection::AbstractConnectionManager
     class << self
-      delegate :slave_file, :slave_file=, :check_interval, :check_interval=,
+      delegate :slaves_file, :slaves_file=, :check_interval, :check_interval=,
         :slave_type, :slave_type=, :to => EbisuConnection::ConfFile
 
       delegate :ignore_models=, :to => FreshConnection::SlaveConnection
