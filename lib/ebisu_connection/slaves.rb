@@ -55,7 +55,7 @@ module EbisuConnection
     end
 
     def sample
-      raise AllSlavesHasGoneError if @slaves.blang?
+      raise AllSlavesHasGoneError if @slaves.blank?
       @slaves[@roulette.sample]
     end
 
