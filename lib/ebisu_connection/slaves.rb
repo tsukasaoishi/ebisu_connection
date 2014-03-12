@@ -9,12 +9,12 @@ module EbisuConnection
         case conf
         when String
           @hostname, weight = conf.split(/\s*,\s*/)
-          edit_spec = {:host => @hostname}
+          edit_spec = {"host" => @hostname}
         when Hash
-          conf = symbolize_keys(conf)
-          weight = conf.delete(:weight)
+          conf = stringify_keys(conf)
+          weight = conf.delete("weight")
           edit_spec = conf
-          @hostname = conf[:host]
+          @hostname = conf["host"]
         else
           raise ArgumentError, "slaves config is invalid"
         end
@@ -37,12 +37,12 @@ module EbisuConnection
 
       private
 
-      def symbolize_keys(hash)
-        symbolize_hash = {}
+      def stringify_keys(hash)
+        stringify_hash = {}
         hash.each do |k,v|
-          symbolize_hash[k.to_sym] = v
+          stringify_hash[k.to_s] = v
         end
-        symbolize_hash
+        stringify_hash
       end
     end
 
