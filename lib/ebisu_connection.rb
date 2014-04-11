@@ -5,7 +5,8 @@ module EbisuConnection
 
   autoload :ConfFile
   autoload :ConnectionManager
-  autoload :Slaves
+  autoload :SlaveGroup
+  autoload :Slave
   autoload :GreatestCommonDivisor
 
   class << self

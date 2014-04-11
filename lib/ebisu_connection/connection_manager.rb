@@ -79,7 +79,7 @@ module EbisuConnection
     end
 
     def get_slaves
-      Slaves.new(slaves_conf, spec)
+      SlaveGroup.new(slaves_conf, spec)
     end
 
     def slaves_conf
