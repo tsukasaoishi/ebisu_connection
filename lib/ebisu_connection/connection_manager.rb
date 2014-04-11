@@ -3,7 +3,7 @@ require 'fresh_connection/abstract_connection_manager'
 
 module EbisuConnection
   class ConnectionManager < FreshConnection::AbstractConnectionManager
-    delegate :if_modify, :conf_clear!, :slaves_conf, :spec, :to => ConfFile
+    delegate :if_modify, :conf_clear!, :to => ConfFile
 
     def initialize(slave_group = "slave")
       super
@@ -79,7 +79,15 @@ module EbisuConnection
     end
 
     def get_slaves
-      EbisuConnection::Slaves.new(slaves_conf, spec)
+      Slaves.new(slaves_conf, spec)
+    end
+
+    def slaves_conf
+      ConfFile.slaves_conf(@slave_group)
+    end
+
+    def spec
+      ConfFile.spec(@slave_group)
     end
   end
 end

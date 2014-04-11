@@ -2,7 +2,6 @@ module EbisuConnection
   class ConfFile
     class << self
       attr_writer :slaves_file, :check_interval
-      attr_accessor :slave_type
 
       def if_modify
         if time_to_check? && modify?
@@ -15,12 +14,14 @@ module EbisuConnection
         @spec = nil
       end
 
-      def slaves_conf
+      def slaves_conf(slave_group)
         @slaves_conf ||= get_slaves_conf
+        @slaves_conf[slave_group] || @slaves_conf
       end
 
-      def spec
+      def spec(slave_group)
         @spec ||= get_spec
+        @spec.merge(@spec[slave_group] || {})
       end
 
       def slaves_file
@@ -50,13 +51,11 @@ module EbisuConnection
       def get_slaves_conf
         @file_mtime = File.mtime(slaves_file)
         conf = YAML.load_file(slaves_file)
-        conf = conf[Rails.env.to_s] if conf.is_a?(Hash)
-        slave_type ? conf[slave_type.to_s] : conf
+        conf[Rails.env.to_s]
       end
 
       def get_spec
-        ret = ActiveRecord::Base.configurations[Rails.env]
-        ret.merge(ret["slave"] || {})
+        ActiveRecord::Base.configurations[Rails.env]
       end
     end
   end
