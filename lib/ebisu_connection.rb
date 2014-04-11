@@ -8,7 +8,7 @@ module EbisuConnection
   autoload :Slaves
 
   class << self
-    delegate :slaves_file, :slaves_file=, :check_interval, :check_interval=, :to => ConfFile
+    delegate :slaves_file=, :check_interval=, :to => ConfFile
   end
 end
 
