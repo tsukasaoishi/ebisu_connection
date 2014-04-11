@@ -6,6 +6,7 @@ module EbisuConnection
   autoload :ConfFile
   autoload :ConnectionManager
   autoload :Slaves
+  autoload :GreatestCommonDivisor
 
   class << self
     delegate :slaves_file=, :check_interval=, :to => ConfFile

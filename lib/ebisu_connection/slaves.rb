@@ -83,33 +83,11 @@ module EbisuConnection
       weight_list = @slaves.map {|s| s.weight }
 
       @roulette = []
-      gcd = get_gcd(weight_list)
+      gcd = GreatestCommonDivisor.calc(weight_list)
       weight_list.each_with_index do |w, index|
         weight = w / gcd
         @roulette.concat([index] * weight)
       end
-    end
-
-    def get_gcd(list)
-      list = list.sort.uniq
-      n = list.shift
-      return n if n == 1 || list.empty?
-
-      while !list.empty?
-        m = list.shift
-        n = gcd_euclid(m, n)
-      end
-      n
-    end
-
-    def gcd_euclid(m, n)
-      m, n = n, m if m < n
-      while n != 0
-        work = m % n
-        m = n
-        n = work
-      end
-      m
     end
   end
 end
