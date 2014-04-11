@@ -13,7 +13,7 @@ module EbisuConnection
     delegate :if_modify, :conf_clear!, :slaves_conf, :spec,
       :to => EbisuConnection::ConfFile
 
-    def initialize
+    def initialize(slave_group = "slave")
       super
       @slaves = {}
     end
