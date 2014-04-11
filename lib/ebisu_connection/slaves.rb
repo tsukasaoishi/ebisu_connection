@@ -1,3 +1,6 @@
+require 'active_support/core_ext/hash/keys'
+require 'active_support/core_ext/object/blank'
+
 module EbisuConnection
   class Slaves
     class AllSlavesHasGoneError < StandardError; end
@@ -8,23 +11,26 @@ module EbisuConnection
       def initialize(conf, spec)
         case conf
         when String
-          @hostname, weight = conf.split(/\s*,\s*/)
-          edit_spec = {"host" => @hostname}
+          host, weight = conf.split(/\s*,\s*/)
+          @hostname, port = host.split(/\s*:\s*/)
         when Hash
-          conf = stringify_keys(conf)
-          weight = conf.delete("weight")
-          edit_spec = conf
+          conf.stringify_keys!
           @hostname = conf["host"]
+          weight = conf["weight"]
+          port = conf["port"]
         else
           raise ArgumentError, "slaves config is invalid"
         end
 
-        @spec = spec.merge(edit_spec)
+        modify_spec = {"host" => @hostname}
+        modify_spec["port"] = port.to_i if port.present?
+
+        @spec = spec.merge(modify_spec)
         @weight = (weight || 1).to_i
       end
 
       def connection
-        @connection ||= ActiveRecord::Base.send("#{@spec["adapter"]}_connection", @spec)
+        @connection ||= ActiveRecord::Base.send("mysql2_connection", @spec)
       end
 
       def disconnect!
@@ -33,16 +39,6 @@ module EbisuConnection
           @connection = nil
         end
       rescue
-      end
-
-      private
-
-      def stringify_keys(hash)
-        stringify_hash = {}
-        hash.each do |k,v|
-          stringify_hash[k.to_s] = v
-        end
-        stringify_hash
       end
     end
 
