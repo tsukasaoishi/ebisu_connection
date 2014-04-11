@@ -6,6 +6,11 @@ module EbisuConnection
   autoload :ConfFile
   autoload :ConnectionManager
   autoload :Slaves
+
+  class << self
+    delegate :slaves_file, :slaves_file=, :check_interval, :check_interval=,
+      :slave_type, :slave_type=, :to => ConfFile
+  end
 end
 
 FreshConnection.connection_manager = EbisuConnection::ConnectionManager
