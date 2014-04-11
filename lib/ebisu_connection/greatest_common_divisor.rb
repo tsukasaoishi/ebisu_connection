@@ -32,5 +32,3 @@ module EbisuConnection
     end
   end
 end
-  end
-end
