@@ -1,12 +1,10 @@
 # EbisuConnection
 
 EbisuConnection supports to connect with Mysql slave servers. It doesn't need Load Balancer.
-You can assign a performance weight to each slave server. And slave config is reflected dynamic. 
+You can assign a performance weight to each slave server. And slave config is reflected dynamic.
 EbisuConnection uses FreshConnection (https://github.com/tsukasaoishi/fresh_connection).
 
 ## Installation
-
-EbisuConnection has tested Rails3.2.16 and Rails4.0.2.
 
 Add this line to your application's Gemfile:
 
@@ -40,7 +38,7 @@ config/database.yml
         password: slave
         host: slave
 
-slave is base config to connect to slave servers.
+```slave``` is base config to connect to slave servers.
 Others will use the master setting. If you want to change, write in the slave.
 
 Config of each slave server fill out config/slave.yaml
@@ -58,13 +56,73 @@ config/slave.yaml is checked by end of action. If config changed, it's reflected
 
 String format is it. You can write config with hash.
 
-### Only master models
+### use multiple slave servers group
+If you may want to user multiple slave group, write multiple slave group to config/database.yml. 
 
-config/initializers/ebisu_connection.rb
+    production:
+      adapter: mysql2
+      encoding: utf8
+      reconnect: true
+      database: kaeru
+      pool: 5
+      username: master
+      password: master
+      host: localhost
+      socket: /var/run/mysqld/mysqld.sock
 
-    EbisuConnection::ConnectionManager.ignore_models = %w|Model1 Model2|
+      slave:
+        username: slave
+        password: slave
+        host: slave
 
-If models that ignore access to slave servers is exist, You can write model name at EbisuConnection::ConnectionManager.ignore models.
+      admin_slave:
+        username: slave
+        password: slave
+        host: admin_slaves
+
+Config of each slave server fill out config/slave.yaml
+
+    production:
+      slave:
+        - "slave1, 10"
+        - "slave2, 20"
+        -
+          host: "slave3"
+          weight: 30
+      admin_slave:
+        - "slave3, 10"
+        - "slave4, 20"
+
+
+And call establish_fresh_connection method in model that access to ```admin_slave``` slave group.
+
+    class AdminUser < ActiveRecord::Base
+      establish_fresh_connection :admin_slave
+    end
+
+The children is access to same slave group of parent.
+
+    class Parent < ActiveRecord::Base
+      establish_fresh_connection :admin_slave
+    end
+
+    class AdminUser < Parent
+    end
+
+    class Benefit < Parent
+    end
+
+AdminUser and Benefit access to ```admin_slave``` slave group.
+
+
+### Declare model that doesn't use slave db
+
+    class SomethingModel < ActiveRecord::Base
+      master_db_only!
+    end
+
+If model that always access to master servers is exist, You may want to write ```master_db_only!```  in model.
+The model that master_db_only model's child is always access to master db.
 
 ## Usage
 
@@ -91,3 +149,22 @@ In transaction, Always will be access to master server.
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
+
+## Test
+
+I'm glad that you would do test!
+To run the test suite, you need mysql installed.
+How to setup your test environment.
+
+```bash
+bundle install --path bundle
+GEM_HOME=bundle/ruby/(your ruby version) gem install bundler --pre
+bundle exec appraisal install
+```
+
+This command run the spec suite for all rails versions supported.
+
+```base
+bundle exec appraisal rake spec
+```
+
