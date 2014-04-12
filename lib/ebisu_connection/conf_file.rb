@@ -16,7 +16,11 @@ module EbisuConnection
 
       def slaves_conf(slave_group)
         @slaves_conf ||= get_slaves_conf
-        @slaves_conf[slave_group] || @slaves_conf
+        if @slaves_conf.is_a?(Hash)
+          @slaves_conf[slave_group] || @slaves_conf
+        else
+          @slaves_conf
+        end
       end
 
       def spec(slave_group)
@@ -51,7 +55,7 @@ module EbisuConnection
       def get_slaves_conf
         @file_mtime = File.mtime(slaves_file)
         conf = YAML.load_file(slaves_file)
-        conf[Rails.env.to_s]
+        conf[Rails.env.to_s] || {}
       end
 
       def get_spec
