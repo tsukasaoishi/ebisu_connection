@@ -1,0 +1,10 @@
+test:
+  adapter: mysql2
+  encoding: utf8
+  database: ebisu_connection_test_master
+  pool: 5
+  username: root
+  password:
+
+  slave:
+    database: ebisu_connection_test_slave

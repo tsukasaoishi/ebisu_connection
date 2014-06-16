@@ -1,0 +1,7 @@
+test:
+  slave:
+    - "localhost, 10"
+    - "localhost, 10"
+    -
+      host: localhost
+      wheight: 10

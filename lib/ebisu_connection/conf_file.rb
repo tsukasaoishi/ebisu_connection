@@ -29,7 +29,9 @@ module EbisuConnection
       end
 
       def slaves_file
-        @slaves_file || File.join(Rails.root, "config/slave.yaml")
+        return @slaves_file if @slaves_file
+        raise "nothing slaves_file. You have to set a file path using EbisuConnection.slaves_file= method" unless defined?(Rails)
+        File.join(Rails.root, "config/slave.yaml")
       end
 
       def check_interval
@@ -55,11 +57,11 @@ module EbisuConnection
       def get_slaves_conf
         @file_mtime = File.mtime(slaves_file)
         conf = YAML.load_file(slaves_file)
-        conf[Rails.env.to_s] || {}
+        conf[FreshConnection.env.to_s] || {}
       end
 
       def get_spec
-        ActiveRecord::Base.configurations[Rails.env]
+        ActiveRecord::Base.configurations[FreshConnection.env]
       end
     end
   end
