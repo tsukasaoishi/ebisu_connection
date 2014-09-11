@@ -1,5 +1,7 @@
 # EbisuConnection
 
+[![Build Status](https://travis-ci.org/tsukasaoishi/ebisu_connection.svg?branch=master)](https://travis-ci.org/tsukasaoishi/ebisu_connection)[![Code Climate](https://codeclimate.com/github/tsukasaoishi/ebisu_connection/badges/gpa.svg)](https://codeclimate.com/github/tsukasaoishi/ebisu_connection)
+
 EbisuConnection supports to connect with Mysql slave servers. It doesn't need Load Balancer.
 You can assign a performance weight to each slave server. And slave config is reflected dynamic.
 EbisuConnection uses FreshConnection (https://github.com/tsukasaoishi/fresh_connection).

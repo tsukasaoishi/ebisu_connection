@@ -1,0 +1,12 @@
+language: ruby
+rvm:
+  - 1.9.3
+  - 2.0.0
+  - 2.1.2
+gemfile:
+  - gemfiles/rails3.gemfile
+  - gemfiles/rails40.gemfile
+  - gemfiles/rails41.gemfile
+notifications:
+  emails:
+    - tsukasa.oishi@gmail.com
