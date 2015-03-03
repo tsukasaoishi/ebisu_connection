@@ -1,4 +1,5 @@
 require "fresh_connection"
+require "active_support/core_ext/module/delegation"
 
 module EbisuConnection
   extend ActiveSupport::Autoload
