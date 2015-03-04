@@ -133,9 +133,13 @@ Read query will be access to slave server.
     Article.where(:id => 1)
     Article.count
 
-If you want to access to master saver, use readonly(false).
+If you want to access to the master server, use read_master.
 
-    Article.where(:id => 1).readonly(false)
+```ruby
+Article.where(:id => 1).read_master
+```
+
+It is possible to use readonly(false) instead of read_master, but it will be depricated at future version.
 
 In transaction, Always will be access to master server.
 
