@@ -1,14 +1,6 @@
 require 'spec_helper'
 
 describe EbisuConnection::Slave do
-  before(:all) do
-    @spec = {
-      "adapter" => "mysql2",
-      "database" => "ebisu_connection_test",
-      "username" => "root"
-    }
-  end
-
   context "initialize(conf is String)" do
     it "hostname only" do
       s = EbisuConnection::Slave.new("host_1", "slave")

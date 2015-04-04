@@ -3,11 +3,6 @@ require 'spec_helper'
 describe EbisuConnection::SlaveGroup do
   before(:all) do
     @sg = EbisuConnection::SlaveGroup
-    @spec = {
-      "adapter" => "mysql2",
-      "database" => "ebisu_connection_test",
-      "username" => "root"
-    }
   end
 
   context "#sample" do
