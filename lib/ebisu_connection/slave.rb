@@ -5,7 +5,7 @@ module EbisuConnection
   class Slave
     attr_reader :hostname, :weight
 
-    def initialize(conf, spec)
+    def initialize(conf, slave_group)
       case conf
       when String
         host, weight = conf.split(/\s*,\s*/)
@@ -22,12 +22,12 @@ module EbisuConnection
       modify_spec = {"host" => @hostname}
       modify_spec["port"] = port.to_i if port.present?
 
-      @spec = spec.merge(modify_spec)
+      @connection_factory = FreshConnection::ConnectionFactory.new(slave_group, modify_spec)
       @weight = (weight || 1).to_i
     end
 
     def connection
-      @connection ||= ActiveRecord::Base.send("mysql2_connection", @spec)
+      @connection ||= @connection_factory.new_connection
     end
 
     def disconnect!

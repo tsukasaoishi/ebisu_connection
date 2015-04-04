@@ -12,21 +12,21 @@ describe EbisuConnection::SlaveGroup do
 
   context "#sample" do
     it "raise exception if slaves empty" do
-      inst = @sg.new([], {})
+      inst = @sg.new([], "slave")
       expect{
         inst.sample
       }.to raise_error(EbisuConnection::SlaveGroup::AllSlavesHasGoneError)
     end
 
     it "return slve instance object" do
-      inst = @sg.new(["h"], {})
+      inst = @sg.new(["h"], "slave")
       expect(inst.sample).to be_a(EbisuConnection::Slave)
     end
   end
 
   context "#remove_connection" do
     it "raise exception AllSlavesHasGoneError when slaves size is one" do
-      inst = @sg.new(["localhost"], @spec)
+      inst = @sg.new(["localhost"], "slave")
       c = inst.sample.connection
       expect {
         inst.remove_connection(c)

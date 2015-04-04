@@ -1,17 +1,22 @@
 require "fresh_connection"
-require "active_support/core_ext/module/delegation"
+require 'ebisu_connection/conf_file'
+require 'ebisu_connection/connection_manager'
 
 module EbisuConnection
-  extend ActiveSupport::Autoload
-
-  autoload :ConfFile
-  autoload :ConnectionManager
-  autoload :SlaveGroup
-  autoload :Slave
-  autoload :GreatestCommonDivisor
-
   class << self
-    delegate :slaves_file=, :check_interval=, :to => ConfFile
+    attr_writer :env
+
+    def slaves_file=(file)
+      ConfFile.slaves_file = file
+    end
+
+    def check_interval=(interval)
+      ConfFile.check_interval = interval
+    end
+
+    def env
+      @env ||= defined?(Rails) && Rails.env || ENV["RAILS_ENV"] || ENV["RACK_ENV"]
+    end
   end
 end
 

@@ -1,10 +1,13 @@
+require 'ebisu_connection/greatest_common_divisor'
+require 'ebisu_connection/slave'
+
 module EbisuConnection
   class SlaveGroup
     class AllSlavesHasGoneError < StandardError; end
 
-    def initialize(slaves_conf, spec)
+    def initialize(slaves_conf, slave_group)
       @slaves = slaves_conf.map do |conf|
-        Slave.new(conf, spec)
+        Slave.new(conf, slave_group)
       end
 
       recalc_roulette

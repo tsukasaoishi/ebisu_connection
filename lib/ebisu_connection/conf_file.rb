@@ -11,7 +11,6 @@ module EbisuConnection
 
       def conf_clear!
         @slaves_conf = nil
-        @spec = nil
       end
 
       def slaves_conf(slave_group)
@@ -21,11 +20,6 @@ module EbisuConnection
         else
           @slaves_conf
         end
-      end
-
-      def spec(slave_group)
-        @spec ||= get_spec
-        @spec.merge(@spec[slave_group] || {})
       end
 
       def slaves_file
@@ -57,11 +51,7 @@ module EbisuConnection
       def get_slaves_conf
         @file_mtime = File.mtime(slaves_file)
         conf = YAML.load_file(slaves_file)
-        conf[FreshConnection.env.to_s] || {}
-      end
-
-      def get_spec
-        ActiveRecord::Base.configurations[FreshConnection.env]
+        conf[EbisuConnection.env.to_s] || {}
       end
     end
   end

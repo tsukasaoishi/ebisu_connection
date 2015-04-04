@@ -1,10 +1,10 @@
 require 'yaml'
 require 'fresh_connection/abstract_connection_manager'
+require 'ebisu_connection/conf_file'
+require 'ebisu_connection/slave_group'
 
 module EbisuConnection
   class ConnectionManager < FreshConnection::AbstractConnectionManager
-    delegate :if_modify, :conf_clear!, :to => ConfFile
-
     def initialize(slave_group = "slave")
       super
       @slaves = {}
@@ -17,23 +17,19 @@ module EbisuConnection
     def put_aside!
       return if check_own_connection
 
-      if_modify do
+      ConfFile.if_modify do
         reserve_release_all_connection
         check_own_connection
       end
     end
 
     def recovery(failure_connection, exception)
-      if recoverable? && slave_down_message?(exception.message)
+      if slave_down_message?(exception.message)
         slaves.remove_connection(failure_connection)
         true
       else
         false
       end
-    end
-
-    def recoverable?
-      true
     end
 
     def clear_all_connection!
@@ -43,7 +39,7 @@ module EbisuConnection
         end
 
         @slaves = {}
-        conf_clear!
+        ConfFile.conf_clear!
       end
     end
 
@@ -68,7 +64,7 @@ module EbisuConnection
         @slaves.values.each do |s|
           s.reserve_release_connection!
         end
-        conf_clear!
+        ConfFile.conf_clear!
       end
     end
 
@@ -79,15 +75,11 @@ module EbisuConnection
     end
 
     def get_slaves
-      SlaveGroup.new(slaves_conf, spec)
+      SlaveGroup.new(slaves_conf, slave_group)
     end
 
     def slaves_conf
-      ConfFile.slaves_conf(@slave_group)
-    end
-
-    def spec
-      ConfFile.spec(@slave_group)
+      ConfFile.slaves_conf(slave_group)
     end
   end
 end
