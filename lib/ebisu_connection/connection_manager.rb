@@ -1,4 +1,3 @@
-require 'yaml'
 require 'fresh_connection/abstract_connection_manager'
 require 'ebisu_connection/conf_file'
 require 'ebisu_connection/slave_group'

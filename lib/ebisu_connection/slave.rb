@@ -1,6 +1,3 @@
-require 'active_support/core_ext/hash/keys'
-require 'active_support/core_ext/object/blank'
-
 module EbisuConnection
   class Slave
     attr_reader :hostname, :weight
@@ -11,18 +8,15 @@ module EbisuConnection
         host, weight = conf.split(/\s*,\s*/)
         @hostname, port = host.split(/\s*:\s*/)
       when Hash
-        conf.stringify_keys!
-        @hostname = conf["host"]
-        weight = conf["weight"]
-        port = conf["port"]
+        @hostname = conf["host"] || conf[:host]
+        weight = conf["weight"] || conf[:weight]
+        port = conf["port"] || conf[:port]
       else
         raise ArgumentError, "slaves config is invalid"
       end
 
-      modify_spec = {"host" => @hostname}
-      modify_spec["port"] = port.to_i if port.present?
-
-      @connection_factory = FreshConnection::ConnectionFactory.new(slave_group, modify_spec)
+      spec = modify_spec(port)
+      @connection_factory = FreshConnection::ConnectionFactory.new(slave_group, spec)
       @weight = (weight || 1).to_i
     end
 
@@ -36,6 +30,13 @@ module EbisuConnection
         @connection = nil
       end
     rescue
+    end
+
+    def modify_spec(port)
+      modify_spec = {"host" => @hostname}
+      return modify_spec unless port
+      modify_spec["port"] = port.to_i if port.is_a?(Integer) || !port.empty?
+      modify_spec
     end
   end
 end

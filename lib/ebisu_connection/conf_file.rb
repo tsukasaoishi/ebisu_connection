@@ -1,3 +1,5 @@
+require 'yaml'
+
 module EbisuConnection
   class ConfFile
     class << self

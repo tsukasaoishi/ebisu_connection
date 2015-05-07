@@ -14,7 +14,7 @@ module EbisuConnection
     end
 
     def sample
-      raise AllSlavesHasGoneError if @slaves.blank?
+      raise AllSlavesHasGoneError if @slaves.empty?
       @slaves[@roulette.sample]
     end
 
@@ -22,7 +22,7 @@ module EbisuConnection
       return unless s = @slaves.detect{|s| s.connection == connection}
       s.disconnect! rescue nil
       @slaves.delete(s)
-      raise AllSlavesHasGoneError if @slaves.blank?
+      raise AllSlavesHasGoneError if @slaves.empty?
       recalc_roulette
       nil
     end
