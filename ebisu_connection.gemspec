@@ -8,20 +8,22 @@ Gem::Specification.new do |spec|
   spec.version       = EbisuConnection::VERSION
   spec.authors       = ["tsukasaoishi"]
   spec.email         = ["tsukasa.oishi@gmail.com"]
-  spec.description   = %q{EbisuConnection supports to connect with Mysql slave servers. It doesn't need Load Balancer.}
+
   spec.summary       = %q{EbisuConnection supports to connect with Mysql slave servers.}
-  spec.homepage      = ""
+  spec.description   = %q{EbisuConnection supports to connect with Mysql slave servers. It doesn't need Load Balancer.}
+  spec.homepage      = "https://github.com/tsukasaoishi/ebisu_connection"
   spec.license       = "MIT"
 
-  spec.files         = `git ls-files`.split($/)
-  spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
-  spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
+  spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
+  spec.bindir        = "exe"
+  spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
+  spec.required_ruby_version = '>= 2.0'
   spec.add_dependency 'fresh_connection', '~> 0.4.0'
 
-  spec.add_development_dependency "bundler", "~> 1.7"
+  spec.add_development_dependency "bundler", "~> 1.9"
   spec.add_development_dependency "rake", '~> 10.0'
   spec.add_development_dependency "rspec", '~> 3.0'
-  spec.add_development_dependency 'appraisal', '~> 1.0'
+  spec.add_development_dependency 'appraisal', '~> 2.0'
 end
