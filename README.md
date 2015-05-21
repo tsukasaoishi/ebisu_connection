@@ -148,6 +148,22 @@ In transaction, Always will be access to master server.
     end
 
 
+### for Unicorn
+
+```ruby
+before_fork do |server, worker|
+  ...
+  ActiveRecord::Base.clear_all_slave_connections!
+  ...
+end
+
+after_fork do |server, worker|
+  ...
+  ActiveRecord::Base.establish_fresh_connection
+  ...
+end
+```
+
 ## Contributing
 
 1. Fork it
