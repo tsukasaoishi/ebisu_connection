@@ -13,4 +13,4 @@ end
 class User < ActiveRecord::Base
 end
 
-require "test/support/extend_minitest"
+require "support/extend_minitest"
