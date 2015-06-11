@@ -206,7 +206,6 @@ How to setup your test environment.
 
 ```bash
 bundle install --path .bundle
-GEM_HOME=.bundle/ruby/(your ruby version) gem install bundler --pre
 bundle exec appraisal install
 ```
 
