@@ -163,7 +163,7 @@ If you want to access to the master server, use read_master.
 Article.where(:id => 1).read_master
 ```
 
-It is possible to use readonly(false) instead of read_master, but it will be depricated at future version.
+If you would like to use readonly(false), use version before 1.0.0.
 
 In transaction, Always will be access to master server.
 
