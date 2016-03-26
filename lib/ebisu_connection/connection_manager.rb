@@ -1,7 +1,6 @@
 require 'fresh_connection/abstract_connection_manager'
 require 'ebisu_connection/conf_file'
 require 'ebisu_connection/slave_group'
-require 'active_support/deprecation'
 
 module EbisuConnection
   class ConnectionManager < FreshConnection::AbstractConnectionManager
@@ -41,11 +40,6 @@ module EbisuConnection
         @slaves = {}
         ConfFile.conf_clear!
       end
-    end
-
-    def clear_all_connection!
-      ActiveSupport::Deprecation.warn("clear_all_connection! has been deprecated. Use clear_all_connections! instead", caller)
-      clear_all_connections!
     end
 
     private
