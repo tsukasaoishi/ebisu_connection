@@ -1,7 +1,3 @@
-appraise "rails3" do
-  gem "activerecord", "~> 3.2.0"
-end
-
 appraise "rails40" do
   gem "activerecord", "~> 4.0.0"
 end
@@ -15,5 +11,5 @@ appraise "rails42" do
 end
 
 appraise "rails50" do
-  gem "activerecord", "5.0.0.beta2"
+  gem "activerecord", "5.0.0.beta3"
 end
