@@ -1,6 +1,6 @@
 require "test_helper"
 
-class SampleTest < Minitest::Test
+class RecoveryConnectionTest < Minitest::Test
   def setup
     @sg = EbisuConnection::SlaveGroup
   end
