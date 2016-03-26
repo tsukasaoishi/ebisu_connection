@@ -1,7 +1,3 @@
-require 'fresh_connection/abstract_connection_manager'
-require 'ebisu_connection/conf_file'
-require 'ebisu_connection/slave_group'
-
 module EbisuConnection
   class ConnectionManager < FreshConnection::AbstractConnectionManager
     def initialize(slave_group = "slave")

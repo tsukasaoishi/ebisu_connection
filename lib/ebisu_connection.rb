@@ -1,8 +1,12 @@
 require "fresh_connection"
-require 'ebisu_connection/conf_file'
-require 'ebisu_connection/connection_manager'
 
 module EbisuConnection
+  autoload :ConfFile, 'ebisu_connection/conf_file'
+  autoload :ConnectionManager, 'ebisu_connection/connection_manager'
+  autoload :SlaveGroup, 'ebisu_connection/slave_group'
+  autoload :Slave, 'ebisu_connection/slave'
+  autoload :GreatestCommonDivisor, 'ebisu_connection/greatest_common_divisor'
+
   class << self
     attr_writer :env
 
