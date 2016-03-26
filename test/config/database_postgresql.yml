@@ -1,0 +1,9 @@
+test:
+  adapter: postgresql
+  encoding: unicode
+  database: ebisu_connection_test_master
+  pool: 5
+
+  slave:
+    database: ebisu_connection_test_slave
+

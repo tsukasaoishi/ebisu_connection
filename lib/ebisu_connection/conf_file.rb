@@ -27,7 +27,10 @@ module EbisuConnection
       def slaves_file
         return @slaves_file if @slaves_file
         raise "nothing slaves_file. You have to set a file path using EbisuConnection.slaves_file= method" unless defined?(Rails)
-        File.join(Rails.root, "config/slave.yaml")
+
+        @slaves_file = %w(yml yaml).map{|ext| Rails.root.join("config/slave.#{ext}").to_s }.detect {|f| File.exist?(f) }
+        raise "nothing slaves_file. You have to put a config/slave.yml file" unless @slaves_file
+        @slaves_file
       end
 
       def check_interval
