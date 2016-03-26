@@ -24,6 +24,10 @@ module EbisuConnection
       @connection ||= @connection_factory.new_connection
     end
 
+    def active?
+      connection.active?
+    end
+
     def disconnect!
       if @connection
         @connection.disconnect!

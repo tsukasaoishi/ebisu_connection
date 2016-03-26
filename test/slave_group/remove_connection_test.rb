@@ -8,8 +8,9 @@ class SampleTest < Minitest::Test
   test "raise exception AllSlavesHasGoneError when slaves size is one" do
     inst = @sg.new(["localhost"], "slave")
     c = inst.sample.connection
+    c.disconnect!
     assert_raises(EbisuConnection::SlaveGroup::AllSlavesHasGoneError) do
-      inst.remove_connection(c)
+      inst.recovery_connection?
     end
   end
 end
