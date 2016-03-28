@@ -49,8 +49,8 @@ article.save
 article.destory
 ```
 
-## Support Rails version
-EbisuConnection supports Rails version 4.0 or later.  
+## Support ActiveRecord version
+EbisuConnection supports ActiveRecord version 4.0 or later.  
 If you are using Rails 3.2, could use EbisuConnection version 1.0.0 or before.
 
 ## Support DB
