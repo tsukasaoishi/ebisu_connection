@@ -1,4 +1,5 @@
-require 'concurrent'
+require "concurrent"
+require "ebisu_connection/slave_group"
 
 module EbisuConnection
   class ConnectionManager < FreshConnection::AbstractConnectionManager

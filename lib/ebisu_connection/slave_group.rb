@@ -1,3 +1,6 @@
+require "ebisu_connection/slave"
+require "ebisu_connection/greatest_common_divisor"
+
 module EbisuConnection
   class SlaveGroup
     class AllSlavesHasGoneError < StandardError; end
