@@ -9,8 +9,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ["tsukasaoishi"]
   spec.email         = ["tsukasa.oishi@gmail.com"]
 
-  spec.summary       = %q{EbisuConnection supports to connect with Mysql slave servers.}
-  spec.description   = %q{EbisuConnection supports to connect with Mysql slave servers. It doesn't need Load Balancer.}
+  spec.summary       = %q{EbisuConnection supports to connect with slave DB servers.}
+  spec.description   = %q{EbisuConnection supports to connect with slave DB servers. It doesn't need Load Balancer.}
   spec.homepage      = "https://github.com/tsukasaoishi/ebisu_connection"
   spec.license       = "MIT"
 
@@ -21,7 +21,7 @@ Gem::Specification.new do |spec|
 
   spec.required_ruby_version = '>= 2.1'
 
-  spec.add_dependency 'fresh_connection', '~> 2.1.0'
+  spec.add_dependency 'fresh_connection', '~> 2.2.0'
   spec.add_dependency 'concurrent-ruby', '~> 1.0.0'
 
   spec.add_development_dependency 'mysql2', '>= 0.3.13', '< 0.5'
