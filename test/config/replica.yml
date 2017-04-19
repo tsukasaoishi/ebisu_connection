@@ -1,5 +1,5 @@
 test:
-  slave:
+  replica:
     - "localhost, 10"
     - "localhost, 10"
     -

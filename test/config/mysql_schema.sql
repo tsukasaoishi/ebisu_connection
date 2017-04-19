@@ -50,12 +50,12 @@ INSERT INTO `users` VALUES (1,'Tsukasa (master)','2014-04-10 07:24:16','2014-04-
 UNLOCK TABLES;
 
 --
--- Current Database: `ebisu_connection_test_slave`
+-- Current Database: `ebisu_connection_test_replica`
 --
 
-CREATE DATABASE /*!32312 IF NOT EXISTS*/ `ebisu_connection_test_slave` /*!40100 DEFAULT CHARACTER SET utf8 */;
+CREATE DATABASE /*!32312 IF NOT EXISTS*/ `ebisu_connection_test_replica` /*!40100 DEFAULT CHARACTER SET utf8 */;
 
-USE `ebisu_connection_test_slave`;
+USE `ebisu_connection_test_replica`;
 
 --
 -- Table structure for table `users`
@@ -79,7 +79,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'Tsukasa (slave)','2014-04-10 07:24:16','2014-04-10 07:24:16');
+INSERT INTO `users` VALUES (1,'Tsukasa (replica1)','2014-04-10 07:24:16','2014-04-10 07:24:16');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;

@@ -1,15 +1,24 @@
 require "concurrent"
-require "ebisu_connection/slave_group"
+require 'active_support/deprecation'
+require "ebisu_connection/replica_group"
 
 module EbisuConnection
   class ConnectionManager < FreshConnection::AbstractConnectionManager
-    def initialize(slave_group = "slave")
+    def initialize(replica_group = "replica")
       super
-      @slaves = Concurrent::Map.new
+      @replicas = Concurrent::Map.new
+    end
+
+    def replica_connection
+      replicas.sample.connection
     end
 
     def slave_connection
-      slaves.sample.connection
+      ActiveSupport::Deprecation.warn(
+        "'slave_connection' is deprecated and will removed from version 2.4.0. use 'replica_connection' insted."
+      )
+
+      replica_connection
     end
 
     def put_aside!
@@ -22,26 +31,26 @@ module EbisuConnection
     end
 
     def clear_all_connections!
-      @slaves.each_value do |s|
+      @replicas.each_value do |s|
         s.all_disconnect!
       end
 
-      @slaves.clear
+      @replicas.clear
       ConfFile.conf_clear!
     end
 
     def recovery?
-      slaves.recovery_connection?
+      replicas.recovery_connection?
     end
 
     private
 
     def check_own_connection
-      s = @slaves[current_thread_id]
+      s = @replicas[current_thread_id]
 
       if s && s.reserved_release?
         s.all_disconnect!
-        @slaves.delete(current_thread_id)
+        @replicas.delete(current_thread_id)
         true
       else
         false
@@ -49,24 +58,24 @@ module EbisuConnection
     end
 
     def reserve_release_all_connection
-      @slaves.each_value do |s|
+      @replicas.each_value do |s|
         s.reserve_release_connection!
       end
       ConfFile.conf_clear!
     end
 
-    def slaves
-      @slaves.fetch_or_store(current_thread_id) do |_|
-        get_slaves
+    def replicas
+      @replicas.fetch_or_store(current_thread_id) do |_|
+        get_replicas
       end
     end
 
-    def get_slaves
-      SlaveGroup.new(slaves_conf, slave_group)
+    def get_replicas
+      ReplicaGroup.new(replica_conf, replica_group)
     end
 
-    def slaves_conf
-      ConfFile.slaves_conf(slave_group)
+    def replica_conf
+      ConfFile.replica_conf(replica_group)
     end
 
     def current_thread_id
