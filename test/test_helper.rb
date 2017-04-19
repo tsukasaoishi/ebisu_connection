@@ -5,6 +5,6 @@ Minitest::Reporters.use!
 $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 require 'ebisu_connection'
 EbisuConnection.env = "test"
-EbisuConnection.slaves_file = File.join(__dir__, "config/slave.yml")
+EbisuConnection.replica_file = File.join(__dir__, "config/replica.yml")
 
 require "config/prepare"

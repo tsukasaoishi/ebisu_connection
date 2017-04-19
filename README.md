@@ -1,24 +1,24 @@
 # EbisuConnection
 [![Gem Version](https://badge.fury.io/rb/ebisu_connection.svg)](http://badge.fury.io/rb/ebisu_connection) [![Build Status](https://travis-ci.org/tsukasaoishi/ebisu_connection.svg?branch=master)](https://travis-ci.org/tsukasaoishi/ebisu_connection) [![Code Climate](https://codeclimate.com/github/tsukasaoishi/ebisu_connection/badges/gpa.svg)](https://codeclimate.com/github/tsukasaoishi/ebisu_connection)
 
-EbisuConnection allows access to slave servers.  
-You could assign a performance weight to each slave server.
+EbisuConnection allows access to replica servers.  
+You could assign a performance weight to each replica server.
 
 ```
 Rails ------------ Master DB
              |
              | 
-             +---- Slave1 DB (weight 10)
+             +---- Replica1 DB (weight 10)
              |
              |
-             +---- Slave2 DB (weight 20)
+             +---- Replica2 DB (weight 20)
 ```
 
-If you could put a load balancer in front of slave servers, should use [FreshConnection](https://github.com/tsukasaoishi/fresh_connection).
+If you could put a load balancer in front of replica servers, should use [FreshConnection](https://github.com/tsukasaoishi/fresh_connection).
 
 ## Usage
-### Access to Slave
-Read query goes to the slave server.
+### Access to Replica
+Read query goes to the replica server.
 
 ```ruby
 Article.where(:id => 1)
@@ -50,7 +50,8 @@ article.destory
 ```
 
 ## Support ActiveRecord version
-EbisuConnection supports ActiveRecord version 4.0 or later.  
+EbisuConnection supports ActiveRecord version 4.2 or later.
+If you are using Rails 4.1 or 4.0, you can use EbisuConnection version 2.1.0 or before.
 If you are using Rails 3.2, could use EbisuConnection version 1.0.0 or before.
 
 ## Support DB
@@ -92,27 +93,27 @@ production:
   host: localhost
   socket: /var/run/mysqld/mysqld.sock
 
-  slave:
-    username: slave
-    password: slave
-    host: slave
+  replica:
+    username: replica
+    password: replica
+    host: replica
 ```
 
-```slave``` is a config to connect to slave servers.  
+```replica``` is a config to connect to replica servers.  
 Others will use the master server settings.  
   
-Config of each slave server fill out to `config/slave.yml`
+Config of each replica server fill out to `config/replica.yml`
 
 ```yaml
 production:
-  - "slave1, 10"
-  - "slave2, 20"
+  - "replica1, 10"
+  - "replica2, 20"
   -
-    host: "slave3"
+    host: "replica3"
     weight: 30
 ```
 
-If ``config/slave.yml`` changed, it is reflected dynamic. Application doesn't need restart.
+If ``config/replica.yml`` changed, it is reflected dynamic. Application doesn't need restart.
 
 ```yaml
 "hostname, weight"
@@ -120,8 +121,8 @@ If ``config/slave.yml`` changed, it is reflected dynamic. Application doesn't ne
 
 String format is it. You can write config with hash.
 
-### use multiple slave servers group
-If you may want to user multiple slave group, write multiple slave group to config/database.yml. 
+### use multiple replica servers group
+If you may want to user multiple replica group, write multiple replica group to config/database.yml. 
 
 ```yaml
 production:
@@ -135,45 +136,45 @@ production:
   host: localhost
   socket: /var/run/mysqld/mysqld.sock
 
-  slave:
-    username: slave
-    password: slave
-    host: slave
+  replica:
+    username: replica
+    password: replica
+    host: replica
 
-  admin_slave:
-    username: slave
-    password: slave
-    host: admin_slaves
+  admin_replica:
+    username: replica
+    password: replica
+    host: admin_replica
 ```
 
-Config of each slave server fill out to `config/slave.yml`
+Config of each replica server fill out to `config/replica.yml`
 
 ```yaml
 production:
-  slave:
-    - "slave1, 10"
-    - "slave2, 20"
+  replica:
+    - "replica1, 10"
+    - "replica2, 20"
     -
-      host: "slave3"
+      host: "replica3"
       weight: 30
-  admin_slave:
-    - "slave3, 10"
-    - "slave4, 20"
+  admin_replica:
+    - "replica4, 10"
+    - "replica5, 20"
 ```
 
-And call establish_fresh_connection method in model that access to ```admin_slave``` slave group.
+And call establish_fresh_connection method in model that access to ```admin_replica``` replica group.
 
 ```ruby
 class AdminUser < ActiveRecord::Base
-  establish_fresh_connection :admin_slave
+  establish_fresh_connection :admin_replica
 end
 ```
 
-The children is access to same slave group of parent.
+The children is access to same replica group of parent.
 
 ```ruby
 class Parent < ActiveRecord::Base
-  establish_fresh_connection :admin_slave
+  establish_fresh_connection :admin_replica
 end
 
 class AdminUser < Parent
@@ -183,10 +184,10 @@ class Benefit < Parent
 end
 ```
 
-AdminUser and Benefit access to ```admin_slave``` slave group.
+AdminUser and Benefit access to ```admin_replica``` replica group.
 
 
-### Declare model that doesn't use slave db
+### Declare model that doesn't use replica db
 
 ```ruby
 class SomethingModel < ActiveRecord::Base
@@ -202,7 +203,7 @@ The model that master_db_only model's child is always access to master db.
 ```ruby
 before_fork do |server, worker|
   ...
-  ActiveRecord::Base.clear_all_slave_connections!
+  ActiveRecord::Base.clear_all_replica_connections!
   ...
 end
 

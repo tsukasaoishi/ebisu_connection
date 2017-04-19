@@ -4,6 +4,6 @@ test:
   database: ebisu_connection_test_master
   pool: 5
 
-  slave:
-    database: ebisu_connection_test_slave
+  replica:
+    database: ebisu_connection_test_replica
 

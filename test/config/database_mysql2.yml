@@ -6,5 +6,5 @@ test:
   username: root
   password:
 
-  slave:
-    database: ebisu_connection_test_slave
+  replica:
+    database: ebisu_connection_test_replica

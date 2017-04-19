@@ -1,9 +1,18 @@
 require 'yaml'
+require 'active_support/deprecation'
 
 module EbisuConnection
   class ConfFile
     class << self
-      attr_writer :slaves_file, :check_interval
+      attr_writer :replica_file, :check_interval
+
+      def slaves_file=(file)
+        ActiveSupport::Deprecation.warn(
+          "'slaves_file=' is deprecated and will removed from version 2.4.0. use 'replica_file=' insted."
+        )
+
+        self.replica_file = file
+      end
 
       def if_modify
         if time_to_check? && modify?
@@ -12,25 +21,63 @@ module EbisuConnection
       end
 
       def conf_clear!
-        @slaves_conf = nil
+        @replica_conf = nil
       end
 
-      def slaves_conf(slave_group)
-        @slaves_conf ||= get_slaves_conf
-        if @slaves_conf.is_a?(Hash)
-          @slaves_conf[slave_group] || @slaves_conf
+      def replica_conf(replica_group)
+        @replica_conf ||= get_replica_conf
+
+        if @replica_conf.is_a?(Hash)
+          c = @replica_conf[replica_group]
+
+          if !c && replica_group == "replica" && @replica_conf.key?("slave")
+            ActiveSupport::Deprecation.warn(
+              "'slave' in replica.yml is deprecated and will ignored from version 2.4.0. use 'replica' insted."
+            )
+
+            c = @replica_conf["slave"]
+          end
+
+          c || @replica_conf
         else
-          @slaves_conf
+          @replica_conf
         end
       end
 
-      def slaves_file
-        return @slaves_file if @slaves_file
-        raise "nothing slaves_file. You have to set a file path using EbisuConnection.slaves_file= method" unless defined?(Rails)
+      def slaves_conf(replica_group)
+        ActiveSupport::Deprecation.warn(
+          "'slaves_conf' is deprecated and will removed from version 2.4.0. use 'replica_conf' insted."
+        )
 
-        @slaves_file = %w(yml yaml).map{|ext| Rails.root.join("config/slave.#{ext}").to_s }.detect {|f| File.exist?(f) }
-        raise "nothing slaves_file. You have to put a config/slave.yml file" unless @slaves_file
-        @slaves_file
+        replica_conf(replica_group)
+      end
+
+      def replica_file
+        return @replica_file if @replica_file
+        raise "nothing replica_file. You have to set a file path using EbisuConnection.replica_file= method" unless defined?(Rails)
+
+        file = %w(yml yaml).map{|ext| Rails.root.join("config/replica.#{ext}").to_s }.detect {|f| File.exist?(f) }
+
+        unless file
+          file = %w(yml yaml).map{|ext| Rails.root.join("config/slave.#{ext}").to_s }.detect {|f| File.exist?(f) }
+          if file
+            ActiveSupport::Deprecation.warn(
+              "file name 'config/#{file}' is deprecated and will ignored from version 2.4.0. use 'config/replica.yml' insted."
+            )
+          end
+        end
+
+        raise "nothing replica_file. You have to put a config/replica.yml file" unless file
+
+        @replica_file = file
+      end
+
+      def slaves_file
+        ActiveSupport::Deprecation.warn(
+          "'slaves_file' is deprecated and will removed from version 2.4.0. use 'replica_file' insted."
+        )
+
+        replica_file
       end
 
       def check_interval
@@ -50,12 +97,12 @@ module EbisuConnection
       end
 
       def modify?
-        @file_mtime != File.mtime(slaves_file)
+        @file_mtime != File.mtime(replica_file)
       end
 
-      def get_slaves_conf
-        @file_mtime = File.mtime(slaves_file)
-        conf = YAML.load_file(slaves_file)
+      def get_replica_conf
+        @file_mtime = File.mtime(replica_file)
+        conf = YAML.load_file(replica_file)
         conf[EbisuConnection.env.to_s] || {}
       end
     end

@@ -9,7 +9,7 @@ when 'mysql2'
 when 'postgresql'
   puts "postgresql"
   system("psql ebisu_connection_test_master < test/config/psql_test_master.sql > /dev/null 2>&1")
-  system("psql ebisu_connection_test_slave < test/config/psql_test_slave.sql > /dev/null 2>&1")
+  system("psql ebisu_connection_test_replica < test/config/psql_test_replica.sql > /dev/null 2>&1")
 end
 
 module ActiveRecord

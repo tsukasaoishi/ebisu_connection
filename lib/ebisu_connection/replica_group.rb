@@ -1,33 +1,33 @@
-require "ebisu_connection/slave"
+require "ebisu_connection/replica"
 require "ebisu_connection/greatest_common_divisor"
 
 module EbisuConnection
-  class SlaveGroup
-    class AllSlavesHasGoneError < StandardError; end
+  class ReplicaGroup
+    class AllReplicaHasGoneError < StandardError; end
 
-    def initialize(slaves_conf, slave_group)
-      @slaves = slaves_conf.map do |conf|
-        Slave.new(conf, slave_group)
+    def initialize(replica_conf, replica_group)
+      @replicas = replica_conf.map do |conf|
+        Replica.new(conf, replica_group)
       end
 
       recalc_roulette
     end
 
     def sample
-      raise AllSlavesHasGoneError if @slaves.empty?
-      @slaves[@roulette.sample]
+      raise AllReplicaHasGoneError if @replicas.empty?
+      @replicas[@roulette.sample]
     end
 
     def recovery_connection?
-      dead_slaves = @slaves.select{|s| !s.active? }
-      return false if dead_slaves.empty?
+      dead_replicas = @replicas.select{|s| !s.active? }
+      return false if dead_replicas.empty?
 
-      dead_slaves.each do |s|
+      dead_replicas.each do |s|
         s.disconnect!
-        @slaves.delete(s)
+        @replicas.delete(s)
       end
 
-      raise AllSlavesHasGoneError if @slaves.empty?
+      raise AllReplicaHasGoneError if @replicas.empty?
 
       recalc_roulette
       true
@@ -35,7 +35,7 @@ module EbisuConnection
 
     def all_disconnect!
       @reserve_release = nil
-      @slaves.each {|s| s.disconnect!}
+      @replicas.each {|s| s.disconnect!}
     end
 
     def reserve_release_connection!
@@ -49,7 +49,7 @@ module EbisuConnection
     private
 
     def recalc_roulette
-      weight_list = @slaves.map {|s| s.weight }
+      weight_list = @replicas.map {|s| s.weight }
 
       @roulette = []
       gcd = GreatestCommonDivisor.calc(weight_list)

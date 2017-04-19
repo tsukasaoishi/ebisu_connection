@@ -1,8 +1,8 @@
 module EbisuConnection
-  class Slave
+  class Replica
     attr_reader :hostname, :weight
 
-    def initialize(conf, slave_group)
+    def initialize(conf, replica_group)
       case conf
       when String
         host, weight = conf.split(/\s*,\s*/)
@@ -12,11 +12,11 @@ module EbisuConnection
         weight = conf["weight"] || conf[:weight]
         port = conf["port"] || conf[:port]
       else
-        raise ArgumentError, "slaves config is invalid"
+        raise ArgumentError, "replica config is invalid"
       end
 
       spec = modify_spec(port)
-      @connection_factory = FreshConnection::ConnectionFactory.new(slave_group, spec)
+      @connection_factory = FreshConnection::ConnectionFactory.new(replica_group, spec)
       @weight = (weight || 1).to_i
     end
 

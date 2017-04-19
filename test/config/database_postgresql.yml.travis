@@ -5,5 +5,5 @@ test:
   pool: 5
   username: postgres
 
-  slave:
-    database: ebisu_connection_test_slave
+  replica:
+    database: ebisu_connection_test_replica
