@@ -1,5 +1,4 @@
 require "concurrent"
-require 'active_support/deprecation'
 require "ebisu_connection/replica_group"
 
 module EbisuConnection
@@ -11,14 +10,6 @@ module EbisuConnection
 
     def replica_connection
       replicas.sample.connection
-    end
-
-    def slave_connection
-      ActiveSupport::Deprecation.warn(
-        "'slave_connection' is deprecated and will removed from version 2.4.0. use 'replica_connection' insted."
-      )
-
-      replica_connection
     end
 
     def put_aside!
