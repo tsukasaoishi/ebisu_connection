@@ -21,6 +21,8 @@
 
 CREATE DATABASE /*!32312 IF NOT EXISTS*/ `ebisu_connection_test_master` /*!40100 DEFAULT CHARACTER SET utf8 */;
 
+SYSTEM echo "Loading master data set"
+
 USE `ebisu_connection_test_master`;
 
 --
@@ -54,6 +56,8 @@ UNLOCK TABLES;
 --
 
 CREATE DATABASE /*!32312 IF NOT EXISTS*/ `ebisu_connection_test_replica` /*!40100 DEFAULT CHARACTER SET utf8 */;
+
+SYSTEM echo "Loading replica data set"
 
 USE `ebisu_connection_test_replica`;
 
