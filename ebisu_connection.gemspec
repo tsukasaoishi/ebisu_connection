@@ -21,7 +21,7 @@ Gem::Specification.new do |spec|
 
   spec.required_ruby_version = '>= 2.2'
 
-  spec.add_dependency 'fresh_connection', '2.4.0.rc1'
+  spec.add_dependency 'fresh_connection', '2.4.0.rc3'
   spec.add_dependency 'concurrent-ruby', '~> 1.0.0'
 
   spec.add_development_dependency 'mysql2', '>= 0.3.13', '< 0.5'

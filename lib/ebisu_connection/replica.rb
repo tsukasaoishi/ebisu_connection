@@ -1,3 +1,5 @@
+require 'fresh_connection/connection_factory'
+
 module EbisuConnection
   class Replica
     attr_reader :hostname, :weight

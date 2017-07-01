@@ -13,12 +13,7 @@ module EbisuConnection
     end
 
     def put_aside!
-      return if check_own_connection
-
-      ConfFile.if_modify do
-        reserve_release_all_connection
-        check_own_connection
-      end
+      check_own_connection
     end
 
     def clear_all_connections!
@@ -27,7 +22,6 @@ module EbisuConnection
       end
 
       @replicas.clear
-      ConfFile.conf_clear!
     end
 
     def recovery?
@@ -38,21 +32,10 @@ module EbisuConnection
 
     def check_own_connection
       s = @replicas[current_thread_id]
+      return if !s || !s.reserved_release?
 
-      if s && s.reserved_release?
-        s.all_disconnect!
-        @replicas.delete(current_thread_id)
-        true
-      else
-        false
-      end
-    end
-
-    def reserve_release_all_connection
-      @replicas.each_value do |s|
-        s.reserve_release_connection!
-      end
-      ConfFile.conf_clear!
+      s.all_disconnect!
+      @replicas.delete(current_thread_id)
     end
 
     def replicas

@@ -4,7 +4,7 @@ require 'active_support/deprecation'
 module EbisuConnection
   class ConfFile
     class << self
-      attr_writer :replica_file, :check_interval
+      attr_writer :replica_file
 
       def slaves_file=(file)
         ActiveSupport::Deprecation.warn(
@@ -12,16 +12,6 @@ module EbisuConnection
         )
 
         self.replica_file = file
-      end
-
-      def if_modify
-        if time_to_check? && modify?
-          yield
-        end
-      end
-
-      def conf_clear!
-        @replica_conf = nil
       end
 
       def replica_conf(replica_group)
@@ -80,25 +70,7 @@ module EbisuConnection
         replica_file
       end
 
-      def check_interval
-        @check_interval || 1.minute
-      end
-
       private
-
-      def time_to_check?
-        now = Time.now
-        @check_time ||= now
-
-        return false if now - @check_time < check_interval
-
-        @check_time = now
-        true
-      end
-
-      def modify?
-        @file_mtime != File.mtime(replica_file)
-      end
 
       def get_replica_conf
         @file_mtime = File.mtime(replica_file)
