@@ -4,106 +4,60 @@ require 'active_support/deprecation'
 module EbisuConnection
   class ConfFile
     class << self
-      attr_writer :replica_file, :check_interval
+      attr_writer :replica_file
 
       def slaves_file=(file)
         ActiveSupport::Deprecation.warn(
-          "'slaves_file=' is deprecated and will removed from version 2.4.0. use 'replica_file=' insted."
+          "'slaves_file=' is deprecated and will removed from version 2.5.0. use 'replica_file=' instead."
         )
 
         self.replica_file = file
       end
 
-      def if_modify
-        if time_to_check? && modify?
-          yield
-        end
-      end
+      def replica_conf(spec_name)
+        return config unless config.is_a?(Hash)
 
-      def conf_clear!
-        @replica_conf = nil
-      end
+        c = config[spec_name]
+        return c if c
 
-      def replica_conf(replica_group)
-        @replica_conf ||= get_replica_conf
+        if spec_name == "replica" && config.key?("slave")
+          ActiveSupport::Deprecation.warn(
+            "'slave' in replica.yml is deprecated and will ignored from version 2.5.0. use 'replica' insted."
+          )
 
-        if @replica_conf.is_a?(Hash)
-          c = @replica_conf[replica_group]
-
-          if !c && replica_group == "replica" && @replica_conf.key?("slave")
-            ActiveSupport::Deprecation.warn(
-              "'slave' in replica.yml is deprecated and will ignored from version 2.4.0. use 'replica' insted."
-            )
-
-            c = @replica_conf["slave"]
-          end
-
-          c || @replica_conf
-        else
-          @replica_conf
-        end
-      end
-
-      def slaves_conf(replica_group)
-        ActiveSupport::Deprecation.warn(
-          "'slaves_conf' is deprecated and will removed from version 2.4.0. use 'replica_conf' insted."
-        )
-
-        replica_conf(replica_group)
-      end
-
-      def replica_file
-        return @replica_file if @replica_file
-        raise "nothing replica_file. You have to set a file path using EbisuConnection.replica_file= method" unless defined?(Rails)
-
-        file = %w(yml yaml).map{|ext| Rails.root.join("config/replica.#{ext}").to_s }.detect {|f| File.exist?(f) }
-
-        unless file
-          file = %w(yml yaml).map{|ext| Rails.root.join("config/slave.#{ext}").to_s }.detect {|f| File.exist?(f) }
-          if file
-            ActiveSupport::Deprecation.warn(
-              "file name 'config/#{file}' is deprecated and will ignored from version 2.4.0. use 'config/replica.yml' insted."
-            )
-          end
+          c = config["slave"]
         end
 
-        raise "nothing replica_file. You have to put a config/replica.yml file" unless file
-
-        @replica_file = file
-      end
-
-      def slaves_file
-        ActiveSupport::Deprecation.warn(
-          "'slaves_file' is deprecated and will removed from version 2.4.0. use 'replica_file' insted."
-        )
-
-        replica_file
-      end
-
-      def check_interval
-        @check_interval || 1.minute
+        c || config
       end
 
       private
 
-      def time_to_check?
-        now = Time.now
-        @check_time ||= now
+      def config
+        return @config if defined?(@config)
 
-        return false if now - @check_time < check_interval
-
-        @check_time = now
-        true
-      end
-
-      def modify?
-        @file_mtime != File.mtime(replica_file)
-      end
-
-      def get_replica_conf
-        @file_mtime = File.mtime(replica_file)
         conf = YAML.load_file(replica_file)
-        conf[EbisuConnection.env.to_s] || {}
+        @config = conf[EbisuConnection.env.to_s] || {}
+      end
+
+      def replica_file
+        return @replica_file if @replica_file
+
+        raise "nothing replica_file. You have to set a file path using EbisuConnection.replica_file= method" unless defined?(Rails)
+
+        file = %w(yml yaml).map{|ext| Rails.root.join("config/replica.#{ext}").to_s }.detect {|f| File.exist?(f) }
+        return file if file
+
+        file = %w(yml yaml).map{|ext| Rails.root.join("config/slave.#{ext}").to_s }.detect {|f| File.exist?(f) }
+        if file
+          ActiveSupport::Deprecation.warn(
+            "file name 'config/#{file}' is deprecated and will ignored from version 2.5.0. use 'config/replica.yml' insted."
+          )
+
+          return file
+        end
+
+        raise "nothing replica_file. You have to put a config/replica.yml file"
       end
     end
   end

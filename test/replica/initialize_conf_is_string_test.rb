@@ -1,4 +1,5 @@
 require "test_helper"
+require "ebisu_connection/replica"
 
 class InitializeConfIsStringTest < Minitest::Test
   test "hostname only" do

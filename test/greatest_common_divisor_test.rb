@@ -1,4 +1,5 @@
 require "test_helper"
+require "ebisu_connection/greatest_common_divisor"
 
 class GreatestCommonDivisorTest < Minitest::Test
   def setup

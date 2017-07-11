@@ -1,76 +1,73 @@
 require "concurrent"
-require "ebisu_connection/replica_group"
+require "ebisu_connection/replica"
+require "ebisu_connection/greatest_common_divisor"
 
 module EbisuConnection
   class ConnectionManager < FreshConnection::AbstractConnectionManager
-    def initialize(replica_group = "replica")
+    class AllReplicaHasGoneError < StandardError; end
+
+    def initialize(spec_name = nil)
       super
-      @replicas = Concurrent::Map.new
+
+      @replicas = Concurrent::Array.new
+
+      replica_conf.each do |conf|
+        @replicas << Replica.new(conf, spec_name)
+      end
+
+      recalc_roulette
     end
 
     def replica_connection
-      replicas.sample.connection
+      raise AllReplicaHasGoneError if @replicas.empty?
+      @replicas[@roulette.sample].connection
     end
 
     def put_aside!
-      return if check_own_connection
-
-      ConfFile.if_modify do
-        reserve_release_all_connection
-        check_own_connection
+      @replicas.each do |pool|
+        pool.release_connection if pool.active_connection? && !pool.connection.transaction_open?
       end
     end
 
     def clear_all_connections!
-      @replicas.each_value do |s|
-        s.all_disconnect!
+      @replicas.each do |pool|
+        pool.disconnect!
       end
-
-      @replicas.clear
-      ConfFile.conf_clear!
     end
 
     def recovery?
-      replicas.recovery_connection?
+      dead_replicas = @replicas.select do |pool|
+        c = pool.connection rescue nil
+        !c || !c.active?
+      end
+      return false if dead_replicas.empty?
+
+      dead_replicas.each do |pool|
+        pool.disconnect!
+        @replicas.delete(pool)
+      end
+
+      raise AllReplicaHasGoneError if @replicas.empty?
+
+      recalc_roulette
+      true
     end
 
     private
 
-    def check_own_connection
-      s = @replicas[current_thread_id]
+    def recalc_roulette
+      weight_list = @replicas.map {|pool| pool.weight }
 
-      if s && s.reserved_release?
-        s.all_disconnect!
-        @replicas.delete(current_thread_id)
-        true
-      else
-        false
+      @roulette = []
+      gcd = GreatestCommonDivisor.calc(weight_list)
+      weight_list.each_with_index do |w, index|
+        weight = w / gcd
+        @roulette.concat([index] * weight)
       end
-    end
-
-    def reserve_release_all_connection
-      @replicas.each_value do |s|
-        s.reserve_release_connection!
-      end
-      ConfFile.conf_clear!
-    end
-
-    def replicas
-      @replicas.fetch_or_store(current_thread_id) do |_|
-        get_replicas
-      end
-    end
-
-    def get_replicas
-      ReplicaGroup.new(replica_conf, replica_group)
     end
 
     def replica_conf
-      ConfFile.replica_conf(replica_group)
-    end
-
-    def current_thread_id
-      Thread.current.object_id
+      ConfFile.replica_conf(spec_name)
     end
   end
 end

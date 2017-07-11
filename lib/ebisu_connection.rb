@@ -1,4 +1,4 @@
-require 'active_support/deprecation'
+require 'active_support'
 require "fresh_connection"
 require "ebisu_connection/conf_file"
 
@@ -11,15 +11,7 @@ module EbisuConnection
     end
 
     def slaves_file=(file)
-      ActiveSupport::Deprecation.warn(
-        "'slaves_file=' is deprecated and will removed from version 2.4.0. use 'replica_file=' insted."
-      )
-
-      self.replica_file = file
-    end
-
-    def check_interval=(interval)
-      ConfFile.check_interval = interval
+      ConfFile.slaves_file = file
     end
 
     def env
@@ -30,4 +22,5 @@ end
 
 require "ebisu_connection/connection_manager"
 FreshConnection.connection_manager = EbisuConnection::ConnectionManager
-ActiveRecord::Base.establish_fresh_connection
+
+require "ebisu_connection/railtie" if defined?(Rails)

@@ -16,6 +16,7 @@ module ActiveRecord
   class Base
     self.configurations = YAML.load_file(File.join(__dir__, "database_#{ENV['DB_ADAPTER']}.yml"))
     establish_connection(configurations["test"])
+    establish_fresh_connection
   end
 end
 
