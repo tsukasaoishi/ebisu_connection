@@ -113,8 +113,6 @@ production:
     weight: 30
 ```
 
-If ``config/replica.yml`` changed, it is reflected dynamic. Application doesn't need restart.
-
 ```yaml
 "hostname, weight"
 ```
