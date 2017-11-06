@@ -22,5 +22,3 @@ end
 
 require "ebisu_connection/connection_manager"
 FreshConnection.connection_manager = EbisuConnection::ConnectionManager
-
-require "ebisu_connection/railtie" if defined?(Rails)
