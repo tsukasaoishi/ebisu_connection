@@ -10,7 +10,6 @@ class RecoveryConnectionTest < Minitest::Test
     inst = @cm.new("replica")
     r = EbisuConnection::Replica.new("localhost", "replica")
     inst.instance_variable_set("@replicas", Array(r))
-    inst.send(:recalc_roulette)
     c = inst.replica_connection
     c.disconnect!
     assert_raises(EbisuConnection::ConnectionManager::AllReplicaHasGoneError) do
