@@ -1,6 +1,5 @@
-require "concurrent"
 require "ebisu_connection/replica"
-require "ebisu_connection/greatest_common_divisor"
+require "ebisu_connection/load_balancer"
 
 module EbisuConnection
   class ConnectionManager < FreshConnection::AbstractConnectionManager
@@ -9,65 +8,51 @@ module EbisuConnection
     def initialize(spec_name = nil)
       super
 
-      @replicas = Concurrent::Array.new
-
-      replica_conf.each do |conf|
-        @replicas << Replica.new(conf, spec_name)
+      @replicas = replica_conf.map do |conf|
+        Replica.new(conf, spec_name)
       end
-
-      recalc_roulette
     end
 
     def replica_connection
       raise AllReplicaHasGoneError if @replicas.empty?
-      @replicas[@roulette.sample].connection
+      load_balancer.replica.connection
     end
 
     def put_aside!
-      @replicas.each do |pool|
-        pool.release_connection if pool.active_connection? && !pool.connection.transaction_open?
-      end
+      @replicas.each(&:put_aside!)
     end
 
     def clear_all_connections!
-      @replicas.each do |pool|
-        pool.disconnect!
-      end
+      @replicas.each(&:disconnect!)
     end
 
     def recovery?
-      dead_replicas = @replicas.select do |pool|
-        c = pool.connection rescue nil
+      dead_replicas = @replicas.select do |replica|
+        c = replica.connection rescue nil
         !c || !c.active?
       end
+
       return false if dead_replicas.empty?
 
-      dead_replicas.each do |pool|
-        pool.disconnect!
-        @replicas.delete(pool)
+      dead_replicas.each do |replica|
+        replica.disconnect!
+        @replicas.delete(replica)
       end
 
       raise AllReplicaHasGoneError if @replicas.empty?
 
-      recalc_roulette
+      @load_balancer = nil
       true
     end
 
     private
 
-    def recalc_roulette
-      weight_list = @replicas.map {|pool| pool.weight }
-
-      @roulette = []
-      gcd = GreatestCommonDivisor.calc(weight_list)
-      weight_list.each_with_index do |w, index|
-        weight = w / gcd
-        @roulette.concat([index] * weight)
-      end
+    def load_balancer
+      @load_balancer ||= LoadBalancer.new(@replicas)
     end
 
     def replica_conf
-      ConfFile.replica_conf(spec_name)
+      @replica_conf ||= Config.new(spec_name)
     end
   end
 end

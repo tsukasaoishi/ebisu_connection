@@ -28,6 +28,13 @@ module EbisuConnection
     def connection
       @pool.connection
     end
+    
+    def put_aside!
+      return unless active_connection?
+      return if connection.transaction_open?
+
+      release_connection
+    end
 
     def active_connection?
       @pool.active_connection?

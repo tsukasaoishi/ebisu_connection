@@ -1,17 +1,13 @@
 require 'active_support'
 require "fresh_connection"
-require "ebisu_connection/conf_file"
+require "ebisu_connection/config"
 
 module EbisuConnection
   class << self
     attr_writer :env
 
     def replica_file=(file)
-      ConfFile.replica_file = file
-    end
-
-    def slaves_file=(file)
-      ConfFile.slaves_file = file
+      Config.replica_file = file
     end
 
     def env
