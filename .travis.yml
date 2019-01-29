@@ -1,6 +1,4 @@
 language: ruby
-before_install:
-  - gem install bundler
 services:
   - mysql
   - postgresql
@@ -11,10 +9,10 @@ before_script:
   - psql -c 'create database ebisu_connection_test_replica;' -U postgres
 cache: bundler
 rvm:
-  - 2.2.9
-  - 2.3.6
-  - 2.4.3
-  - 2.5.0
+  - 2.3.8
+  - 2.4.5
+  - 2.5.3
+  - 2.6.0
 gemfile:
   - gemfiles/rails50.gemfile
   - gemfiles/rails51.gemfile
