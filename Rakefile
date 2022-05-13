@@ -12,7 +12,7 @@ namespace :test do
     Rake::TestTask.new(db) do |t|
       t.libs << "test"
       t.libs << "lib"
-      t.test_files = FileList["test/config/prepare_#{db}", 'test/**/*_test.rb']
+      t.test_files = FileList["test/config/prepare_#{db}.rb", 'test/**/*_test.rb']
       t.verbose = true
     end
   end
