@@ -65,7 +65,7 @@ CREATE SEQUENCE users_id_seq
     CACHE 1;
 
 
-ALTER TABLE users_id_seq OWNER TO tsukasa;
+ALTER TABLE users_id_seq OWNER TO postgres;
 
 ALTER SEQUENCE users_id_seq OWNED BY users.id;
 
@@ -106,6 +106,6 @@ ALTER TABLE ONLY users
     ADD CONSTRAINT users_pkey PRIMARY KEY (id);
 
 REVOKE ALL ON SCHEMA public FROM PUBLIC;
-REVOKE ALL ON SCHEMA public FROM tsukasa;
-GRANT ALL ON SCHEMA public TO tsukasa;
+REVOKE ALL ON SCHEMA public FROM postgres;
+GRANT ALL ON SCHEMA public TO postgres;
 GRANT ALL ON SCHEMA public TO PUBLIC;
