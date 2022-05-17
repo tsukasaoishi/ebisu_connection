@@ -1,7 +1,7 @@
 test:
   replica:
-    - "localhost, 10"
-    - "localhost, 10"
+    - "127.0.0.1, 10"
+    - "127.0.0.1, 10"
     -
-      host: localhost
+      host: "127.0.0.1"
       wheight: 10

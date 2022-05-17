@@ -1,9 +1,0 @@
-test:
-  adapter: postgresql
-  encoding: unicode
-  database: ebisu_connection_test_master
-  pool: 5
-  username: postgres
-
-  replica:
-    database: ebisu_connection_test_replica

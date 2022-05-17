@@ -8,7 +8,7 @@ class RecoveryConnectionTest < Minitest::Test
 
   test "raise exception AllReplicaHasGoneError when replicas size is one" do
     inst = @cm.new("replica")
-    r = EbisuConnection::Replica.new("localhost", "replica")
+    r = EbisuConnection::Replica.new("127.0.0.1", "replica")
     inst.instance_variable_set("@replicas", Array(r))
     c = inst.replica_connection
     c.disconnect!

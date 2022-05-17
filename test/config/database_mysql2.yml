@@ -3,8 +3,9 @@ test:
   encoding: utf8
   database: ebisu_connection_test_master
   pool: 5
-  username: root
-  password:
+  username: "root"
+  password: ""
+  host: "127.0.0.1"
 
   replica:
     database: ebisu_connection_test_replica
