@@ -17,6 +17,7 @@ jobs:
       environment:
         POSTGRES_USER: postgres
         POSTGRES_HOST_AUTH_METHOD: trust
+    resource_class: small
     environment:
       BUNDLE_GEMFILE: gemfiles/<< parameters.gemfile >>
     steps:
